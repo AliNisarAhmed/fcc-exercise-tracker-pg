@@ -14,7 +14,7 @@ app.get('/', function(req, res) {
 
 app.get('/api/exercise/all', async (req, res) => {
   const exercises = await queries.getAllExercises()
-  res.json(exercises[0]);
+  res.json(exercises);
 })
 
 app.post('/api/exercise/new-user', async (req, res, next) => {
@@ -36,7 +36,24 @@ app.post('/api/exercise/add', async (req, res, next) => {
   }
 });
 
-app.get('/api/exercise/log', async (req, res) => {   
+app.get('/api/exercise/log', async (req, res, next) => {
+  try {
+    const response = await queries.getUsername(req.body.user_id);
+    if (response.length > 0) {
+      const exercises = await queries.getExerciseLog(req.body.user_id);
+      res.json({
+        username: response[0].username,
+        log: exercises,
+        count: exercises.length
+      }) 
+    } else {
+      res.status(404).json({
+        error: 'This user Id does not exist'
+      })
+    }
+  } catch (error) {
+    next(error);
+  }   
 });
 
 app.use((req, res, next) => {
@@ -47,6 +64,9 @@ app.use((req, res, next) => {
 
 const PORT = process.env.port || 3000;
 
-app.listen(PORT, () => {
+
+let server = app.listen(PORT, () => {
   console.log('server start on ' + PORT);
-})
+});
+
+module.exports = server;

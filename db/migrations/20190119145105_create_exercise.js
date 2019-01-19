@@ -1,7 +1,6 @@
-
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('exercises', function (table) {
-    table.increments();
+    table.increments('id').primary();
     table.integer('user_id').notNullable();
     table.string('description').notNullable();
     table.float('duration').notNullable();
